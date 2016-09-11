@@ -12,3 +12,14 @@ object InOut {
   def getLine(): Free[InOut, String] = Free.liftF(GetLine)
 }
 
+object RunInOut extends App {
+
+  import InOut._
+
+  val program: Free[InOut, Unit] = for {
+    _ <- printLine("What is your name")
+    name <- getLine()
+    _ <- printLine(s"Nice to meet you $name")
+  } yield ()
+
+}
