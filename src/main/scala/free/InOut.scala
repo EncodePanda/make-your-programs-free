@@ -1,6 +1,7 @@
 package free
 
 import scalaz._, Scalaz._
+import scalaz.concurrent.Task
 
 sealed trait InOut[A]
 case class PrintLine(line: String) extends InOut[Unit]
@@ -12,6 +13,18 @@ object InOut {
   def getLine(): Free[InOut, String] = Free.liftF(GetLine)
 }
 
+object ConsoleInterpreter extends (InOut ~> Task) {
+
+  def apply[A](inout: InOut[A]): Task[A] = inout match {
+    case PrintLine(line) => Task.delay {
+      println(line)
+    }
+    case GetLine => Task.delay {
+      scala.io.StdIn.readLine()
+    }
+  }
+}
+
 object RunInOut extends App {
 
   import InOut._
@@ -21,5 +34,9 @@ object RunInOut extends App {
     name <- getLine()
     _ <- printLine(s"Nice to meet you $name")
   } yield ()
+
+  val task: Task[Unit] = program.foldMap(ConsoleInterpreter)
+
+  task.unsafePerformSync
 
 }
