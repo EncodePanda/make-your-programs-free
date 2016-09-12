@@ -11,10 +11,13 @@ case class Error(line: String) extends Logging[Unit]
 case class Debug(line: String) extends Logging[Unit]
 
 object Logging {
-  def info(line: String): Free[Logging, Unit] = Free.liftF(Info(line))
-  def warn(line: String): Free[Logging, Unit] = Free.liftF(Warn(line))
-  def error(line: String): Free[Logging, Unit] = Free.liftF(Error(line))
-  def debug(line: String): Free[Logging, Unit] = Free.liftF(Debug(line))
+
+  case class Ops[S[_]](implicit s0: Logging :<: S) {
+    def info(line: String): Free[S, Unit] = Free.liftF(s0.inj(Info(line)))
+    def warn(line: String): Free[S, Unit] = Free.liftF(s0.inj(Warn(line)))
+    def error(line: String): Free[S, Unit] = Free.liftF(s0.inj(Error(line)))
+    def debug(line: String): Free[S, Unit] = Free.liftF(s0.inj(Debug(line)))
+  }
 }
 
 object Interpreter extends (Logging ~> Task) {
@@ -36,11 +39,11 @@ object Interpreter extends (Logging ~> Task) {
 
 object RunLogging extends App {
 
-  import Logging._
+  implicit val ops = new Logging.Ops[Logging]()
 
   val program = for {
-    _ <- info("starting application!")
-    _ <- debug("omg, app is running!")
+    _ <- ops.info("starting application!")
+    _ <- ops.debug("omg, app is running!")
   } yield()
 
   val task: Task[Unit] = program.foldMap(Interpreter)

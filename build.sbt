@@ -2,6 +2,7 @@ name := "make-your-programs-free"
 
 scalaVersion := "2.11.8"
 
+scalacOptions ++= Seq("-feature", "-language:higherKinds")
 
 libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.2.6",

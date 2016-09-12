@@ -19,10 +19,10 @@ class RunInOutSpec extends FreeSpec with Matchers {
     }
   }
 
-
   "A program" - {
     "should ask for a name and greet the user" in {
       // given
+      implicit val ops = new InOut.Ops[InOut]
       val input = Stack.empty[String]
       val output = ListBuffer.empty[String]
       input.push("Pawel")

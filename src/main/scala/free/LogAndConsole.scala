@@ -6,6 +6,6 @@ object LogAndConsole extends App {
 
   type Eff[A] = Coproduct[InOut, Logging, A]
 
-  val program: Free[Eff, String] = ???
+  def program: Free[Eff, String] = ???
 
 }
