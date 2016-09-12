@@ -12,11 +12,16 @@ case class Debug(line: String) extends Logging[Unit]
 
 object Logging {
 
-  case class Ops[S[_]](implicit s0: Logging :<: S) {
+  class Ops[S[_]](implicit s0: Logging :<: S) {
     def info(line: String): Free[S, Unit] = Free.liftF(s0.inj(Info(line)))
     def warn(line: String): Free[S, Unit] = Free.liftF(s0.inj(Warn(line)))
     def error(line: String): Free[S, Unit] = Free.liftF(s0.inj(Error(line)))
     def debug(line: String): Free[S, Unit] = Free.liftF(s0.inj(Debug(line)))
+  }
+
+  object Ops {
+    implicit def apply[S[_]](implicit S: Logging :<: S): Ops[S] =
+      new Ops[S]
   }
 }
 

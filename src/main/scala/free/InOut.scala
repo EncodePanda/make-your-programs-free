@@ -20,6 +20,11 @@ object InOut {
       answer <- getLine()
     } yield answer
   }
+
+  object Ops {
+    implicit def apply[S[_]](implicit S: InOut :<: S): Ops[S] =
+      new Ops[S]
+  }
 }
 
 object ConsoleInterpreter extends (InOut ~> Task) {
