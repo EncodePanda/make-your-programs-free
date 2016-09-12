@@ -11,6 +11,13 @@ case object GetLine extends InOut[String]
 object InOut {
   def printLine(line: String): Free[InOut, Unit] = Free.liftF(PrintLine(line))
   def getLine(): Free[InOut, String] = Free.liftF(GetLine)
+
+  object Ops {
+    def ask(question: String): Free[InOut, String] = for {
+      _ <- printLine(question)
+      answer <- getLine()
+    } yield answer
+  }
 }
 
 object ConsoleInterpreter extends (InOut ~> Task) {
@@ -28,10 +35,10 @@ object ConsoleInterpreter extends (InOut ~> Task) {
 object OurFirstProgram {
 
   import InOut._
+  import Ops._
 
   val program: Free[InOut, Unit] = for {
-    _ <- printLine("What is your name")
-    name <- getLine()
+    name <- ask("What is your name")
     _ <- printLine(s"Nice to meet you $name")
   } yield ()
 }
