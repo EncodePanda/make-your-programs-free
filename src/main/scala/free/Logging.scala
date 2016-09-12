@@ -25,7 +25,7 @@ object Logging {
   }
 }
 
-object Interpreter extends (Logging ~> Task) {
+object Log4JInterpreter extends (Logging ~> Task) {
   def apply[A](inout: Logging[A]): Task[A] = inout match {
     case Info(line) => Task.delay {
       LoggerFactory.getLogger(this.getClass).info(line)
@@ -51,7 +51,7 @@ object RunLogging extends App {
     _ <- ops.debug("omg, app is running!")
   } yield()
 
-  val task: Task[Unit] = program.foldMap(Interpreter)
+  val task: Task[Unit] = program.foldMap(Log4JInterpreter)
 
   task.unsafePerformSync
 }

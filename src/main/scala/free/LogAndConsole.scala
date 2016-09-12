@@ -1,6 +1,8 @@
 package free
 
 import scalaz._, Scalaz._
+import scalaz.concurrent.Task
+import free.EnrichNTOps._
 
 object LogAndConsole extends App {
 
@@ -16,5 +18,7 @@ object LogAndConsole extends App {
   } yield(name)
 
   val prog = program[Eff]
+  val interpreter: Eff ~> Task = ConsoleInterpreter :+: Log4JInterpreter
+  prog.foldMap(interpreter).unsafePerformSync
 
 }
