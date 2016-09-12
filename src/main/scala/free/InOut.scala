@@ -25,7 +25,7 @@ object ConsoleInterpreter extends (InOut ~> Task) {
   }
 }
 
-object RunInOut extends App {
+object OurFirstProgram {
 
   import InOut._
 
@@ -34,8 +34,11 @@ object RunInOut extends App {
     name <- getLine()
     _ <- printLine(s"Nice to meet you $name")
   } yield ()
+}
 
-  val task: Task[Unit] = program.foldMap(ConsoleInterpreter)
+object RunInOut extends App {
+
+  val task: Task[Unit] = OurFirstProgram.program.foldMap(ConsoleInterpreter)
 
   task.unsafePerformSync
 
