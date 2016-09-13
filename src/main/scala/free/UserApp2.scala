@@ -32,5 +32,14 @@ object UserApp2 extends App {
     first :+: second
   }
 
+  type LowerEff0[A] = Coproduct[MonotonicSeq, KVS[Long, UserAccount, ?], A]
+  type LowerEff[A] = Coproduct[Task, LowerEff0, A]
+
+  def lowelevelInterpreter: Free[LowerEff, ?] ~> Task = ???
+
+  implicit val kvs: KVS[Long, UserAccount, ?] :<: LowerEff = implicitly[KVS[Long, UserAccount, ?] :<: LowerEff]
+  implicit val ms: MonotonicSeq :<: LowerEff = implicitly[MonotonicSeq :<: LowerEff]
+
+  val theInt: Eff ~> Task = interpreter[LowerEff] andThen lowelevelInterpreter
 
 }
