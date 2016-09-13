@@ -33,7 +33,7 @@ object ManipulateAccount {
 
 }
 
-object Interpreters {
+object MAInterpreters {
 
   import ManipulateAccount._
 
@@ -76,7 +76,7 @@ object Interpreters {
 
 object ManipulateAccountRun extends App {
 
-  import Interpreters._
+  import MAInterpreters._
 
   def program[S[_]](implicit ma: ManipulateAccount.Ops[S]) = for {
     handler <- ma.create("pawel", 32)

@@ -3,7 +3,7 @@ package free
 import scalaz._, Scalaz._
 import scalaz.concurrent.Task
 import free.EnrichNTOps._
-import free.Interpreters._
+import free.MAInterpreters._
 
 object UserApp1 extends App {
 
@@ -25,7 +25,7 @@ object UserApp1 extends App {
   }
 
   val prog = program[Eff]
-  val interpreter: Eff ~> StorageState = LiftedConsoleInterpreter :+: Interpreters.allInOne
+  val interpreter: Eff ~> StorageState = LiftedConsoleInterpreter :+: MAInterpreters.allInOne
   val result = prog.foldMap(interpreter).eval((0, Map.empty)).unsafePerformSync
 
   println(result)
