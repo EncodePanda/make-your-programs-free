@@ -38,6 +38,34 @@ object ConsoleInterpreter extends (InOut ~> Task) {
   }
 }
 
+object InOutInterpreter {
+
+  def injectFT[F[_], S[_]](implicit S: F :<: S): F ~> Free[S, ?] =
+    liftFT[S] compose injectNT[F, S]
+
+  def liftFT[S[_]]: S ~> Free[S, ?] =
+    new (S ~> Free[S, ?]) {
+      def apply[A](s: S[A]) = Free.liftF(s)
+    }
+
+  def injectNT[F[_], G[_]](implicit I: F :<: G): F ~> G =
+    new (F ~> G) {
+      def apply[A](fa: F[A]) = I inj fa
+    }
+
+
+  def interpreter[S[_]](implicit s0: Task :<: S) = new (InOut ~> Free[S, ?]) {
+    def apply[A](inout: InOut[A]): Free[S, A] = inout match {
+      case PrintLine(line) => injectFT.apply(Task.delay {
+        println(line)
+      })
+      case GetLine => injectFT.apply(Task.delay {
+        scala.io.StdIn.readLine()
+      })
+    }
+  }
+}
+
 object OurFirstProgram {
   def program[S[_]](implicit io: InOut.Ops[InOut]): Free[InOut, Unit] = for {
     name <- io.ask("What is your name")

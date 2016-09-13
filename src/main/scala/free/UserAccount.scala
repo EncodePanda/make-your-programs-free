@@ -37,6 +37,26 @@ object MAInterpreters {
 
   import ManipulateAccount._
 
+  def interpreter[S[_]](implicit
+    kvs: KVS.Ops[S, Long, UserAccount],
+    ms: MonotonicSeq.Ops[S]
+  ): ManipulateAccount ~> Free[S, ?] = new (ManipulateAccount ~> Free[S, ?]) {
+    def apply[A](ma: ManipulateAccount[A]): Free[S, A] = ma match {
+      case CreateAccount(l, a) => for {
+        handler <- ms.next
+        _ <- kvs.put(handler, UserAccount(l, a))
+      } yield(handler)
+      case UpdateAge(h, a) => for {
+        mua <- kvs.get(h)
+      } yield (mua.foreach (ua => kvs.put(h, ua.copy(age = a))))
+      case DeactivateAccount(h) => for {
+        mua <- kvs.get(h)
+      } yield (mua.foreach (ua => kvs.put(h, ua.copy(active = false))))
+      case DeleteAccount(h) =>  ???
+      case FetchAccount(h) => ???
+    }
+  }
+
   type InnerS = (Long,Map[Handler, UserAccount])
   type StorageState[A] = StateT[Task, InnerS, A]
 
